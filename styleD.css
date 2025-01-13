@@ -4,9 +4,8 @@ body{
     overflow: hidden;
     font-family: "Rubik", serif;
      font-optical-sizing: auto;
-    font-weight: <weight>;
+    font-weight: 300;
      font-style: normal;
-    
       
 }
 canvas{
