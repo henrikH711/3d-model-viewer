@@ -20,4 +20,59 @@ canvas{
     border-radius: 8px;
   }
 
-  #file-input { position: absolute; top: 10px; left: 10px; z-index: 1000; }
+#file-input { position: absolute; top: 10px; left: 10px; z-index: 1000; }
+
+
+  
+  #ui {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    z-index: 1000;
+  }
+ 
+  #ui input[type="file"] {
+    display: block;
+    margin-top: 10px;
+    padding: 5px;
+  }
+
+  #ui button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
+  #ui button:hover {
+    background: #0056b3;
+  }
+
+  #property-window {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    z-index: 1000;
+    display: none; 
+  }
+  
+  #property-window h3 {
+    margin-top: 0;
+  }
+  
+  #property-window p {
+    margin: 5px 0;
+    font-size: 14px;
+  }
+  

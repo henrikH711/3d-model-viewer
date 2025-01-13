@@ -2,26 +2,44 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// Scene, camera, renderer
+// Scene, camera, renderer setup
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Lighting
+// Lighting setup
 scene.add(new THREE.AmbientLight(0xffffff, 0.8));
 
-// Controls
+// Orbit controls setup
 const controls = new OrbitControls(camera, renderer.domElement);
 camera.position.set(0, 2, 5);
 
-// Helpers
-const gridHelper = new THREE.GridHelper(10, 10); // 10x10 grid
+// Helpers: Grid and Axes
+const gridHelper = new THREE.GridHelper(10, 10);
 scene.add(gridHelper);
 
-const axesHelper = new THREE.AxesHelper(5); // Axes with length 5
+const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper);
+
+// Property window
+const propertyWindow = document.getElementById('property-window');
+
+// Function to update property window
+function updatePropertyWindow(obj) {
+  const position = obj.position;
+  const rotation = obj.rotation;
+  const scale = obj.scale;
+
+  propertyWindow.innerHTML = `
+    <h3>Model Properties</h3>
+    <p><strong>Position:</strong> (${position.x.toFixed(2)}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)})</p>
+    <p><strong>Rotation:</strong> (${THREE.MathUtils.radToDeg(rotation.x).toFixed(2)}°, ${THREE.MathUtils.radToDeg(rotation.y).toFixed(2)}°, ${THREE.MathUtils.radToDeg(rotation.z).toFixed(2)}°)</p>
+    <p><strong>Scale:</strong> (${scale.x.toFixed(2)}, ${scale.y.toFixed(2)}, ${scale.z.toFixed(2)})</p>
+  `;
+  propertyWindow.style.display = 'block'; // Show the window
+}
 
 // File input handler
 document.getElementById('file-input').addEventListener('change', (e) => {
@@ -29,9 +47,12 @@ document.getElementById('file-input').addEventListener('change', (e) => {
   if (file) loadModel(URL.createObjectURL(file));
 });
 
+// Reset button
+document.getElementById('reset-button').addEventListener('click', resetScene);
+
 // Drag-and-drop handler
 document.body.addEventListener('dragover', (e) => {
-  e.preventDefault(); // Prevent default drag behavior
+  e.preventDefault();
   e.dataTransfer.dropEffect = 'copy';
 });
 
@@ -41,17 +62,7 @@ document.body.addEventListener('drop', (e) => {
   if (file) loadModel(URL.createObjectURL(file));
 });
 
-// Reset button
-const resetButton = document.createElement('button');
-resetButton.innerText = 'Reset Scene';
-resetButton.style.position = 'absolute';
-resetButton.style.top = '10px';
-resetButton.style.left = '10px';
-resetButton.style.zIndex = '1000';
-resetButton.addEventListener('click', resetScene);
-document.body.appendChild(resetButton);
-
-// Model loader
+// GLTF loader
 const loader = new GLTFLoader();
 function loadModel(url) {
   loader.load(url, (gltf) => {
@@ -61,6 +72,7 @@ function loadModel(url) {
     scene.add(axesHelper);
     scene.add(gltf.scene); // Add new model
     fitCameraToObject(gltf.scene); // Adjust camera
+    updatePropertyWindow(gltf.scene); // Update property window
   });
 }
 
@@ -83,6 +95,7 @@ function resetScene() {
   camera.position.set(0, 2, 5); // Reset camera
   controls.target.set(0, 0, 0); // Reset controls
   controls.update();
+  propertyWindow.style.display = 'none'; // Hide property window
 }
 
 // Responsive resizing
