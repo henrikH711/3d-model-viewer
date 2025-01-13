@@ -19,3 +19,5 @@ canvas{
     padding: 10px;
     border-radius: 8px;
   }
+
+  #file-input { position: absolute; top: 10px; left: 10px; z-index: 1000; }
