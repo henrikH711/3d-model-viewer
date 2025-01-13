@@ -1,4 +1,4 @@
 
 #3d blender model support interface 
 
-something useful text :
+This will be a 3d model viewer with animation support.
