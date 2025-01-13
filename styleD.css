@@ -6,7 +6,7 @@ body{
      font-optical-sizing: auto;
     font-weight: 300;
      font-style: normal;
-      
+    background-color: antiquewhite;
 }
 canvas{
     display: block;
@@ -15,7 +15,7 @@ canvas{
     position: absolute;
     top: 10px;
     left: 10px;
-    background: rgba(98, 149, 243, 0.9);
+    background: rgba(113, 163, 255, 0.9);
     padding: 10px;
     border-radius: 8px;
   }
