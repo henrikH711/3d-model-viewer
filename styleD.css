@@ -6,7 +6,7 @@ body{
      font-optical-sizing: auto;
     font-weight: 300;
      font-style: normal;
-    background-color: antiquewhite;
+    background-color: rgb(228, 167, 88);
 }
 canvas{
     display: block;
