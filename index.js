@@ -32,94 +32,109 @@ scene.add(axesHelper);
 // GLTFLoader
 const loader = new GLTFLoader();
 
+// Property window
+const propertyWindow = document.getElementById('property-window');
+const modelNameElem = document.getElementById('model-name');
+const modelSizeElem = document.getElementById('model-size');
+const modelCenterElem = document.getElementById('model-center');
+
+// Show model properties
+function showModelProperties(model, name) {
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+
+    modelNameElem.textContent = `Name: ${name}`;
+    modelSizeElem.textContent = `Size: ${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`;
+    modelCenterElem.textContent = `Center: (${center.x.toFixed(2)}, ${center.y.toFixed(2)}, ${center.z.toFixed(2)})`;
+
+    propertyWindow.style.display = 'block';
+}
+
 // Load model function
-function loadModel(url) {
-  loader.load(
-    url,
-    (gltf) => {
-      const model = gltf.scene;
-      console.log('Model loaded successfully:', model);
+function loadModel(url, name = 'Unnamed Model') {
+    loader.load(
+        url,
+        (gltf) => {
+            const model = gltf.scene;
+            console.log('Model loaded successfully:', model);
 
-      // Adjust scale and center model
-      model.scale.set(1, 1, 1);
-      const box = new THREE.Box3().setFromObject(model);
-      const center = box.getCenter(new THREE.Vector3());
-      model.position.sub(center); // Center model at (0, 0, 0)
+            // Adjust scale and center model
+            model.scale.set(1, 1, 1);
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            model.position.sub(center); // Center model at (0, 0, 0)
 
-      // Clear the scene except helpers
-      clearScene();
-      scene.add(gridHelper);
-      scene.add(axesHelper);
-      scene.add(model);
+            // Clear the scene except helpers
+            clearScene();
+            scene.add(gridHelper);
+            scene.add(axesHelper);
+            scene.add(model);
 
-      // Adjust camera to fit model
-      fitCameraToObject(camera, model);
-      controls.update();
-    },
-    undefined,
-    (error) => {
-      console.error('An error occurred while loading the model:', error);
-    }
-  );
+            // Show properties
+            showModelProperties(model, name);
+
+            // Adjust camera to fit model
+            fitCameraToObject(camera, model);
+            controls.update();
+        },
+        undefined,
+        (error) => {
+            console.error('An error occurred while loading the model:', error);
+        }
+    );
 }
 
 // Adjust camera to fit object
 function fitCameraToObject(camera, object) {
-  const box = new THREE.Box3().setFromObject(object);
-  const size = box.getSize(new THREE.Vector3()).length();
-  const center = box.getCenter(new THREE.Vector3());
+    const box = new THREE.Box3().setFromObject(object);
+    const size = box.getSize(new THREE.Vector3()).length();
+    const center = box.getCenter(new THREE.Vector3());
 
-  const fov = camera.fov * (Math.PI / 180); // Convert FOV to radians
-  const distance = size / (2 * Math.tan(fov / 2)); // Calculate distance
+    const fov = camera.fov * (Math.PI / 180); // Convert FOV to radians
+    const distance = size / (2 * Math.tan(fov / 2)); // Calculate distance
 
-  camera.position.set(center.x, center.y, distance * 1.5); // Adjust distance
-  controls.target.set(center.x, center.y, center.z); // Focus controls on the model
-  controls.update();
+    camera.position.set(center.x, center.y, distance * 1.5); // Adjust distance
+    controls.target.set(center.x, center.y, center.z); // Focus controls on the model
+    controls.update();
 }
 
 // Clear all objects except helpers
 function clearScene() {
-  while (scene.children.length > 2) {
-    scene.remove(scene.children[2]);
-  }
+    while (scene.children.length > 2) {
+        scene.remove(scene.children[2]);
+    }
 }
 
 // Handle file input
 document.getElementById('file-input').addEventListener('change', (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    console.log('File URL:', url);
-    loadModel(url);
-  }
+    const file = event.target.files[0];
+    if (file) {
+        const url = URL.createObjectURL(file);
+        console.log('File URL:', url);
+        loadModel(url, file.name);
+    }
 });
 
-// Handle drag-and-drop
-document.body.addEventListener('dragover', (event) => {
-  event.preventDefault();
-  event.dataTransfer.dropEffect = 'copy';
-});
-
-document.body.addEventListener('drop', (event) => {
-  event.preventDefault();
-  const file = event.dataTransfer.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    console.log('File URL from drag-and-drop:', url);
-    loadModel(url);
-  }
+// Reset button
+document.getElementById('reset-scene').addEventListener('click', () => {
+    clearScene();
+    propertyWindow.style.display = 'none'; // Hide property window
+    camera.position.set(0, 2, 5); // Reset camera
+    controls.target.set(0, 0, 0); // Reset controls
+    controls.update();
 });
 
 // Responsive resizing
 window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
 // Animation loop
 function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
 }
 animate();
