@@ -7,18 +7,19 @@
     <link rel="stylesheet" href="styleD.css" />
 </head>
 <body>
- 
     <div id="ui">
-        <h1> Import panel</h1>
+        <h1>Import Panel</h1>
         <label for="file-input"> 3D model feltöltése (.glb, .gltf):</label>
         <input type="file" id="file-input" accept=".glb,.gltf" />
+        <button id="reset-scene">Jelenet visszaállítása</button>
+        <button id="fit-camera">Fit Camera</button>
     </div>
     <div id="property-window">
-   <h3>Model Properties</h3>
+        <h3>Model Properties</h3>
         <p id="model-name">Name: N/A</p>
         <p id="model-size">Size: N/A</p>
         <p id="model-center">Center: N/A</p>
     </div>
-    <script type="module" src="index.js"></script> <!--Script link--->
+    <script type="module" src="index.js"></script>
 </body>
 </html>

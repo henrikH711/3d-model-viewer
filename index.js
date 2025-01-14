@@ -10,14 +10,14 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Lighting setup
-const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Soft white light
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(5, 5, 5); // Light source position
+directionalLight.position.set(5, 5, 5);
 scene.add(directionalLight);
 
-// Orbit controls for navigation
+// Orbit controls
 const controls = new OrbitControls(camera, renderer.domElement);
 camera.position.set(0, 2, 5);
 controls.update();
@@ -57,13 +57,12 @@ function loadModel(url, name = 'Unnamed Model') {
         url,
         (gltf) => {
             const model = gltf.scene;
-            console.log('Model loaded successfully:', model);
 
             // Adjust scale and center model
             model.scale.set(1, 1, 1);
             const box = new THREE.Box3().setFromObject(model);
             const center = box.getCenter(new THREE.Vector3());
-            model.position.sub(center); // Center model at (0, 0, 0)
+            model.position.sub(center);
 
             // Clear the scene except helpers
             clearScene();
@@ -71,17 +70,12 @@ function loadModel(url, name = 'Unnamed Model') {
             scene.add(axesHelper);
             scene.add(model);
 
-            // Show properties
             showModelProperties(model, name);
-
-            // Adjust camera to fit model
             fitCameraToObject(camera, model);
             controls.update();
         },
         undefined,
-        (error) => {
-            console.error('An error occurred while loading the model:', error);
-        }
+        (error) => console.error('Error loading model:', error)
     );
 }
 
@@ -91,11 +85,11 @@ function fitCameraToObject(camera, object) {
     const size = box.getSize(new THREE.Vector3()).length();
     const center = box.getCenter(new THREE.Vector3());
 
-    const fov = camera.fov * (Math.PI / 180); // Convert FOV to radians
-    const distance = size / (2 * Math.tan(fov / 2)); // Calculate distance
+    const fov = camera.fov * (Math.PI / 180);
+    const distance = size / (2 * Math.tan(fov / 2));
 
-    camera.position.set(center.x, center.y, distance * 1.5); // Adjust distance
-    controls.target.set(center.x, center.y, center.z); // Focus controls on the model
+    camera.position.set(center.x, center.y, distance * 1.5);
+    controls.target.set(center.x, center.y, center.z);
     controls.update();
 }
 
@@ -111,7 +105,6 @@ document.getElementById('file-input').addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
         const url = URL.createObjectURL(file);
-        console.log('File URL:', url);
         loadModel(url, file.name);
     }
 });
@@ -119,10 +112,16 @@ document.getElementById('file-input').addEventListener('change', (event) => {
 // Reset button
 document.getElementById('reset-scene').addEventListener('click', () => {
     clearScene();
-    propertyWindow.style.display = 'none'; // Hide property window
-    camera.position.set(0, 2, 5); // Reset camera
-    controls.target.set(0, 0, 0); // Reset controls
+    propertyWindow.style.display = 'none';
+    camera.position.set(0, 2, 5);
+    controls.target.set(0, 0, 0);
     controls.update();
+});
+
+// Fit Camera button
+document.getElementById('fit-camera').addEventListener('click', () => {
+    const object = scene.children.find((child) => child.isMesh);
+    if (object) fitCameraToObject(camera, object);
 });
 
 // Responsive resizing
@@ -135,6 +134,7 @@ window.addEventListener('resize', () => {
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
+    controls.update();
     renderer.render(scene, camera);
 }
 animate();
