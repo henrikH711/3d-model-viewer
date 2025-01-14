@@ -6,8 +6,23 @@ body{
      font-optical-sizing: auto;
     font-weight: 300;
      font-style: normal;
-    background-color: rgb(247, 224, 193);
+     background: linear-gradient(-45deg, hsl(189, 58%, 22%), #8b84f1, #caeefc, #36c6ff);
+     background-size: 400% 400%;
+     animation: gradient 15s ease infinite;
+     height: 100vh;
+ }
+ @keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
 }
+
 /* Canvas styling */
 canvas {
     display: block;
@@ -20,7 +35,7 @@ canvas {
     position: absolute;
     top: 10px;
     left: 10px;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(76, 148, 243, 0.9);
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -56,7 +71,7 @@ canvas {
     position: absolute;
     top: 10px;
     right: 10px;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(89, 248, 227, 0.9);
     padding: 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -64,7 +79,6 @@ canvas {
     display: none; /* Hidden by default */
   }
   
-  /* Property window header */
   #property-window h3 {
     margin-top: 0;
     font-size: 16px;
