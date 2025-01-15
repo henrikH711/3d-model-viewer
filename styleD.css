@@ -26,7 +26,7 @@ canvas {
     top: 10px;
     left: 10px;
     color: #ffffff;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.7);
     padding: 10px;
     border: 3px solid #a0ecff;
     border-radius: 8px;
@@ -41,7 +41,7 @@ canvas {
 }
 
 #ui button {
-    background: #e1efff;
+    background: #7db7f9;
     color: white;
     border: none;
     border-radius: 3px;
