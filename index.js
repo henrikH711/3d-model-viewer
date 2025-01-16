@@ -14,7 +14,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
-// Lighting setup
+
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Soft white light
 scene.add(ambientLight);
 
@@ -30,7 +30,7 @@ scene.add(gridHelper);
 const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper);
 
-// Ground plane
+
 const planeGeometry = new THREE.PlaneGeometry(20, 20);
 const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.2 });
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -107,7 +107,7 @@ document.getElementById('file-input').addEventListener('change', (event) => {
     }
 });
 
-// Reset button
+// Reset 
 document.getElementById('reset-scene').addEventListener('click', () => {
     clearScene();
     camera.position.set(0, 2, 5);
@@ -115,16 +115,9 @@ document.getElementById('reset-scene').addEventListener('click', () => {
     controls.update();
 });
 
-// Window resize handler
+// Window resize 
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
-// Animation loop
-function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-}
-animate();
