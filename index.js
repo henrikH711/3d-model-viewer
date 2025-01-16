@@ -46,20 +46,18 @@ controls.update();
 // GLTFLoader setup
 const loader = new GLTFLoader();
 
-// Function to load and display the model
 function loadModel(url, name = 'Unnamed Model') {
     loader.load(
         url,
         (gltf) => {
             const model = gltf.scene;
 
-            // Adjust the model scale and center it
             model.scale.set(1, 1, 1);
             const box = new THREE.Box3().setFromObject(model);
             const center = box.getCenter(new THREE.Vector3());
             model.position.sub(center);
 
-            // Clear previous models
+    
             clearScene();
             scene.add(gridHelper, axesHelper, plane, model);
 
@@ -79,7 +77,7 @@ function loadModel(url, name = 'Unnamed Model') {
     );
 }
 
-// Clear all objects except helpers and ground plane
+
 function clearScene() {
     scene.children = scene.children.filter(
         (child) => child === gridHelper || child === axesHelper || child === plane || child.type === 'Light'
