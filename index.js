@@ -4,23 +4,24 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 // Scene, camera, and renderer setup
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xaaaaaa);
+
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 2, 5);
+
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
 // Lighting setup
-const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Soft white light
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Soft white light
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(5, 5, 5); // Light source position
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+directionalLight.position.set(5, 5, 5);
+directionalLight.castShadow = true;
 scene.add(directionalLight);
-
-// Orbit controls for navigation
-const controls = new OrbitControls(camera, renderer.domElement);
-camera.position.set(0, 2, 5);
-controls.update();
 
 // Helpers
 const gridHelper = new THREE.GridHelper(10, 10);
@@ -29,63 +30,63 @@ scene.add(gridHelper);
 const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper);
 
-// GLTFLoader
+// Ground plane
+const planeGeometry = new THREE.PlaneGeometry(20, 20);
+const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.2 });
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.rotation.x = -Math.PI / 2;
+plane.receiveShadow = true;
+scene.add(plane);
+
+// Orbit controls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0, 0);
+controls.update();
+
+// GLTFLoader setup
 const loader = new GLTFLoader();
 
-// Property window
-const propertyWindow = document.getElementById('property-window');
-const modelNameElem = document.getElementById('model-name');
-const modelSizeElem = document.getElementById('model-size');
-const modelCenterElem = document.getElementById('model-center');
-
-// Show model properties
-function showModelProperties(model, name) {
-    const box = new THREE.Box3().setFromObject(model);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-
-    modelNameElem.textContent = `Name: ${name}`;
-    modelSizeElem.textContent = `Size: ${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`;
-    modelCenterElem.textContent = `Center: (${center.x.toFixed(2)}, ${center.y.toFixed(2)}, ${center.z.toFixed(2)})`;
-
-    propertyWindow.style.display = 'block';
-}
-
-// Load model function
+// Function to load and display the model
 function loadModel(url, name = 'Unnamed Model') {
     loader.load(
         url,
         (gltf) => {
             const model = gltf.scene;
-            console.log('Model loaded successfully:', model);
 
-            // Adjust scale and center model
+            // Adjust the model scale and center it
             model.scale.set(1, 1, 1);
             const box = new THREE.Box3().setFromObject(model);
             const center = box.getCenter(new THREE.Vector3());
-            model.position.sub(center); // Center model at (0, 0, 0)
+            model.position.sub(center);
 
-            // Clear the scene except helpers
+            // Clear previous models
             clearScene();
-            scene.add(gridHelper);
-            scene.add(axesHelper);
-            scene.add(model);
+            scene.add(gridHelper, axesHelper, plane, model);
 
-            // Show properties
-            showModelProperties(model, name);
-
-            // Adjust camera to fit model
+            // Adjust camera
             fitCameraToObject(camera, model);
             controls.update();
+
+            console.log(`Model "${name}" loaded successfully.`);
         },
-        undefined,
+        (xhr) => {
+            console.log(`Model loading progress: ${((xhr.loaded / xhr.total) * 100).toFixed(2)}%`);
+        },
         (error) => {
             console.error('An error occurred while loading the model:', error);
+            alert('Failed to load model. Please check the file and try again.');
         }
     );
 }
 
-// Adjust camera to fit object
+// Clear all objects except helpers and ground plane
+function clearScene() {
+    scene.children = scene.children.filter(
+        (child) => child === gridHelper || child === axesHelper || child === plane || child.type === 'Light'
+    );
+}
+
+// Fit camera to the model
 function fitCameraToObject(camera, object) {
     const box = new THREE.Box3().setFromObject(object);
     const size = box.getSize(new THREE.Vector3()).length();
@@ -94,24 +95,16 @@ function fitCameraToObject(camera, object) {
     const fov = camera.fov * (Math.PI / 180); // Convert FOV to radians
     const distance = size / (2 * Math.tan(fov / 2)); // Calculate distance
 
-    camera.position.set(center.x, center.y, distance * 1.5); // Adjust distance
-    controls.target.set(center.x, center.y, center.z); // Focus controls on the model
+    camera.position.set(center.x, center.y + distance / 2, center.z + distance * 1.5);
+    controls.target.set(center.x, center.y, center.z);
     controls.update();
 }
 
-// Clear all objects except helpers
-function clearScene() {
-    while (scene.children.length > 2) {
-        scene.remove(scene.children[2]);
-    }
-}
-
-// Handle file input
+// File input handler
 document.getElementById('file-input').addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
         const url = URL.createObjectURL(file);
-        console.log('File URL:', url); // This should print the URL of the selected file
         loadModel(url, file.name);
     }
 });
@@ -119,13 +112,12 @@ document.getElementById('file-input').addEventListener('change', (event) => {
 // Reset button
 document.getElementById('reset-scene').addEventListener('click', () => {
     clearScene();
-    propertyWindow.style.display = 'none'; // Hide property window
-    camera.position.set(0, 2, 5); // Reset camera
-    controls.target.set(0, 0, 0); // Reset controls
+    camera.position.set(0, 2, 5);
+    controls.target.set(0, 0, 0);
     controls.update();
 });
 
-// Responsive resizing
+// Window resize handler
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
