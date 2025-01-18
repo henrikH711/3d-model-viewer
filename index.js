@@ -69,7 +69,7 @@ function loadModel(url, name = 'Unnamed Model') {
         },
         (xhr) => {
             console.log(`Model loading progress: ${((xhr.loaded / xhr.total) * 100).toFixed(2)}%`);
-        },
+        }, //errorhandling
         (error) => {
             console.error('An error occurred while loading the model:', error);
             alert('Failed to load model. Please check the file and try again.');
