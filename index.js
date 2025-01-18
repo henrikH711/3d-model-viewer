@@ -27,8 +27,8 @@ scene.add(directionalLight);
 const gridHelper = new THREE.GridHelper(10, 10);
 scene.add(gridHelper);
 
-const axesHelper = new THREE.AxesHelper(5);
-scene.add(axesHelper);
+const Axes = new THREE.Axes(5);
+scene.add(Axes);
 
 
 const planeGeometry = new THREE.PlaneGeometry(20, 20);
@@ -59,7 +59,7 @@ function loadModel(url, name = 'Unnamed Model') {
 
     
             clearScene();
-            scene.add(gridHelper, axesHelper, plane, model);
+            scene.add(gridHelper, Axes, plane, model);
 
             // Adjust camera
             fitCameraToObject(camera, model);
@@ -80,7 +80,7 @@ function loadModel(url, name = 'Unnamed Model') {
 
 function clearScene() {
     scene.children = scene.children.filter(
-        (child) => child === gridHelper || child === axesHelper || child === plane || child.type === 'Light'
+        (child) => child === gridHelper || child === Axes || child === plane || child.type === 'Light'
     );
 }
 
