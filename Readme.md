@@ -9,4 +9,4 @@ Technologies that I'm using for this project:
 
 
 I haven't give a name for this project yet..
-I'm going to turn this  into a react-app later as I progress through my learning course. 
+I'm going to turn this  into a react-app later as I progress through my learning course.  :)
