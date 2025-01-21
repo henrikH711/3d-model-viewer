@@ -9,13 +9,15 @@ Technologies that I'm using for this project:
      
 Features:
 
-*Drag-and-drop support for uploading .glb and .gltf files.
+-Responsive and modern UI.
 
-*Interactive camera controls (orbit, pan, zoom).(coming soon)
+-Drag-and-drop support for uploading .glb and .gltf files.
 
-*Adjustable lighting and background for enhanced visualization. (coming soon)
+-Interactive camera controls (orbit, pan, zoom).(coming soon)
 
-*Timeline for animations (coming soon)
+-Adjustable lighting and background for enhanced visualization. (coming soon)
+
+-Timeline for animations (coming soon)
 
 I haven't give a name for this project yet..
 I'm going to turn this  into a react-app later as I progress through my learning course.  :)
