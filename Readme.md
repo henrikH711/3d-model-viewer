@@ -6,7 +6,9 @@ Basically it's a 3d enviroment that only supports .glb, .gltf files and runs on 
 Technologies that I'm using for this project:
    * HTML and css
    * JavaScript & threeJS (as mentioned above)
+     
 Features:
+
 *Drag-and-drop support for uploading .glb and .gltf files.
 
 *Interactive camera controls (orbit, pan, zoom).(coming soon)
