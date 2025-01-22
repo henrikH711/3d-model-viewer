@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 // Basic Three.js setup
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 2, 5);
@@ -50,6 +51,8 @@ function loadModel(url) {
             const box = new THREE.Box3().setFromObject(model);
             const center = box.getCenter(new THREE.Vector3());
             model.position.sub(center);
+            model.scale.set(0.1, 0.1, 0.1); // If the model is too large    
+            model.position.set(0, 0, 0);    // Center the model
 
     
             clearScene();
@@ -71,6 +74,7 @@ function loadModel(url) {
     );
 }
 
+console.log('Bounding Box:', new THREE.Box3().setFromObject(model));
 
 function clearScene() {
     scene.children = scene.children.filter(
