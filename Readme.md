@@ -6,8 +6,18 @@ Basically it's a 3d enviroment that only supports .glb, .gltf files and runs on 
 Technologies that I'm using for this project:
    * HTML and css
    * JavaScript & threeJS (as mentioned above)
+     
+Features:
 
+-Responsive and modern UI.
+
+-Drag-and-drop support for uploading .glb and .gltf files.
+
+-Interactive camera controls (orbit, pan, zoom).(coming soon)
+
+-Adjustable lighting and background for enhanced visualization. (coming soon)
+
+-Timeline for animations (coming soon)
 
 I haven't give a name for this project yet..
-Maybe I'll transform this into a react-app. 
-I'm just testing my skills on this.
+I'm going to turn this  into a react-app later as I progress through my learning course.  :)

@@ -2,10 +2,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// Scene, camera, and renderer setup
+// Basic Three.js setup
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xaaaaaa);
-
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 2, 5);
 
@@ -13,20 +11,25 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Lights
-scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Soft white light
+scene.add(ambientLight);
+
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
 directionalLight.position.set(5, 5, 5);
 scene.add(directionalLight);
 
 // Helpers
-scene.add(new THREE.GridHelper(10, 10), new THREE.AxesHelper(5));
+const gridHelper = new THREE.GridHelper(10, 10);
+scene.add(gridHelper);
 
-// Plane for shadows
-const plane = new THREE.Mesh(
-    new THREE.PlaneGeometry(20, 20),
-    new THREE.ShadowMaterial({ opacity: 0.2 })
-);
+const Axes = new THREE.Axes(5);
+scene.add(Axes);
+
+
+const planeGeometry = new THREE.PlaneGeometry(20, 20);
+const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.2 });
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = -Math.PI / 2;
 scene.add(plane);
 
@@ -34,7 +37,7 @@ scene.add(plane);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.update();
 
-// GLTFLoader
+// GLTFLoader setup
 const loader = new GLTFLoader();
 
 function loadModel(url) {
@@ -42,27 +45,50 @@ function loadModel(url) {
         url,
         (gltf) => {
             const model = gltf.scene;
-            model.scale.set(1, 1, 1);
-            scene.add(model);
 
-            fitCameraToObject(model);
+            model.scale.set(1, 1, 1);
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            model.position.sub(center);
+
+    
+            clearScene();
+            scene.add(gridHelper, Axes, plane, model);
+
+            // Adjust camera
+            fitCameraToObject(camera, model);
+            controls.update();
+
+            console.log(`Model "${name}" loaded successfully.`);
         },
-        undefined,
+        (xhr) => {
+            console.log(`Model loading progress: ${((xhr.loaded / xhr.total) * 100).toFixed(2)}%`);
+        }, //errorhandling
         (error) => {
-            console.error('Error loading model:', error);
-            alert('Failed to load model. Please check the file.');
+            console.error('An error occurred while loading the model:', error);
+            alert('Failed to load model. Please check the file and try again.');
         }
     );
 }
 
-function fitCameraToObject(object) {
+
+function clearScene() {
+    scene.children = scene.children.filter(
+        (child) => child === gridHelper || child === Axes || child === plane || child.type === 'Light'
+    );
+}
+
+// Fit camera to the model
+function fitCameraToObject(camera, object) {
     const box = new THREE.Box3().setFromObject(object);
     const size = box.getSize(new THREE.Vector3()).length();
     const center = box.getCenter(new THREE.Vector3());
 
-    const distance = size * 1.5;
-    camera.position.set(center.x, center.y + distance / 2, center.z + distance);
-    controls.target.copy(center);
+    const fov = camera.fov * (Math.PI / 180); // Convert FOV to radians
+    const distance = size / (2 * Math.tan(fov / 2)); // Calculate distance
+
+    camera.position.set(center.x, center.y + distance / 2, center.z + distance * 1.5);
+    controls.target.set(center.x, center.y, center.z);
     controls.update();
 }
 
@@ -71,11 +97,19 @@ document.getElementById('file-input').addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
         const url = URL.createObjectURL(file);
-        loadModel(url);
+        loadModel(url, file.name);
     }
 });
 
-// Window resize
+// Reset 
+document.getElementById('reset-scene').addEventListener('click', () => {
+    clearScene();
+    camera.position.set(0, 2, 5);
+    controls.target.set(0, 0, 0);
+    controls.update();
+});
+
+// Window resize 
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
