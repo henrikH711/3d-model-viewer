@@ -7,7 +7,28 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 2, 5);
+//camera rotate
+function rotateX(rot) {
+    var x = camera.position.x,
+        y = camera.position.y,
+        z = camera.position.z;
 
+    camera.position.x = x * Math.cos(rot) + z * Math.sin(rot);
+    camera.position.z = z * Math.cos(rot) - x * Math.sin(rot);
+
+    camera.lookAt(scene.position);
+}
+
+function rotateY(rot) {
+    var x = camera.position.x,
+        y = camera.position.y,
+        z = camera.position.z;
+
+    camera.position.z = z * Math.cos(rot) + y * Math.sin(rot);
+    camera.position.y = y * Math.cos(rot) - z * Math.sin(rot);
+
+    camera.lookAt(scene.position);     
+}
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
