@@ -3,35 +3,63 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 // Basic Three.js setup
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 2, 5);
+//camera rotate
+function rotateX(rot) {
+    var x = camera.position.x,
+        y = camera.position.y,
+        z = camera.position.z;
 
+    camera.position.x = x * Math.cos(rot) + z * Math.sin(rot);
+    camera.position.z = z * Math.cos(rot) - x * Math.sin(rot);
+
+    camera.lookAt(scene.position);
+}
+
+function rotateY(rot) {
+    var x = camera.position.x,
+        y = camera.position.y,
+        z = camera.position.z;
+
+    camera.position.z = z * Math.cos(rot) + y * Math.sin(rot);
+    camera.position.y = y * Math.cos(rot) - z * Math.sin(rot);
+
+    camera.lookAt(scene.position);     
+}
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
-// Lighting
-scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Soft white light
+scene.add(ambientLight);
+
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
 directionalLight.position.set(5, 5, 5);
 scene.add(directionalLight);
 
-// Plane for shadows
-const plane = new THREE.Mesh(
-    new THREE.PlaneGeometry(20, 20),
-    new THREE.ShadowMaterial({ opacity: 0.2 })
-);
+// Helpers
+const gridHelper = new THREE.GridHelper(10, 10);
+scene.add(gridHelper);
+
+const Axes = new THREE.Axes(5);
+scene.add(Axes);
+
+
+const planeGeometry = new THREE.PlaneGeometry(20, 20);
+const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.2 });
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = -Math.PI / 2;
-plane.receiveShadow = true;
 scene.add(plane);
 
 // Orbit controls
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.update();
 
-// GLTF model loader
+// GLTFLoader setup
 const loader = new GLTFLoader();
 
 function loadModel(url) {
@@ -39,43 +67,84 @@ function loadModel(url) {
         url,
         (gltf) => {
             const model = gltf.scene;
-            scene.add(model);
 
-            // Center and scale model
+            model.scale.set(1, 1, 1);
             const box = new THREE.Box3().setFromObject(model);
             const center = box.getCenter(new THREE.Vector3());
             model.position.sub(center);
+            model.scale.set(0.1, 0.1, 0.1); // If the model is too large    
+            model.position.set(0, 0, 0);    // Center the model
 
-            fitCameraToModel(camera, model);
+    
+            clearScene();
+            scene.add(gridHelper, Axes, plane, model);
+
+            // Adjust camera
+            fitCameraToObject(camera, model);
             controls.update();
+
+            console.log(`Model "${name}" loaded successfully.`);
         },
-        (xhr) => console.log(`Loading progress: ${(xhr.loaded / xhr.total * 100).toFixed(2)}%`),
-        (error) => console.error('Error loading model:', error)
+        (xhr) => {
+            console.log(`Model loading progress: ${((xhr.loaded / xhr.total) * 100).toFixed(2)}%`);
+        }, //errorhandling
+        (error) => {
+            console.error('An error occurred while loading the model:', error);
+            alert('Failed to load model. Please check the file and try again.');
+        }
     );
 }
 
-// Adjust camera to fit the model
-function fitCameraToModel(camera, model) {
-    const box = new THREE.Box3().setFromObject(model);
+console.log('Bounding Box:', new THREE.Box3().setFromObject(model));
+
+function clearScene() {
+    scene.children = scene.children.filter(
+        (child) => child === gridHelper || child === Axes || child === plane || child.type === 'Light'
+    );
+}
+
+// Fit camera to the model
+function fitCameraToObject(camera, object) {
+    const box = new THREE.Box3().setFromObject(object);
     const size = box.getSize(new THREE.Vector3()).length();
     const center = box.getCenter(new THREE.Vector3());
 
-    const distance = size / Math.tan((camera.fov / 2) * (Math.PI / 180));
+    const fov = camera.fov * (Math.PI / 180); // Convert FOV to radians
+    const distance = size / (2 * Math.tan(fov / 2)); // Calculate distance
+
     camera.position.set(center.x, center.y + distance / 2, center.z + distance * 1.5);
-    controls.target.copy(center);
+    controls.target.set(center.x, center.y, center.z);
+    controls.update();
 }
 
-// File input handler
+// File input
 document.getElementById('file-input').addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
-        loadModel(URL.createObjectURL(file));
+        const url = URL.createObjectURL(file);
+        loadModel(url, file.name);
     }
 });
 
-// Resize 
+// Reset 
+document.getElementById('reset-scene').addEventListener('click', () => {
+    clearScene();
+    camera.position.set(0, 2, 5);
+    controls.target.set(0, 0, 0);
+    controls.update();
+});
+
+// Window resize 
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+}
+animate();
