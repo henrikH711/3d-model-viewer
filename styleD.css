@@ -75,3 +75,14 @@ canvas {
     font-size: 14px;
     color: #333;
 }
+#timeline-window{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(89, 248, 227, 0.9);
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    z-index: 1000;
+    display: none;
+}
