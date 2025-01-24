@@ -8,12 +8,15 @@
 </head>
 <body>
     <div id="ui">
-        <h1>Import Panel</h1>
-        <label for="file-input"> 3D model feltöltése (.glb, .gltf):</label>
-        <input type="file" id="file-input" accept=".gltf, .glb" />
-        <button id="reset-scene">Jelenet visszaállítása</button>
-        <button id="fit-camera">Fit Camera</button>
+        <h1>Fájl Importálása</h1>
+        <div>
+            <input type="file" id="file-input" accept=".glb,.gltf" />
+            <button id="import-button">Import File</button>
+          </div>
+          
     </div>
+    <div id="render-area"></div>
+
     <div id="property-window">
         <h3>Model Properties</h3>
         <p id="model-name">Name: N/A</p>
