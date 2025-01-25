@@ -25,11 +25,12 @@ function loadModel(file) {
 
             console.log('Model position after centering:', model.position);
 
-            // Clear the scene and add the model
+            // Clear the scene + adds model
             clearScene();
             scene.add(gridHelper, plane, model);
 
-            // Adjust the camera
+            // Camera
+
             fitCameraToObject(camera, model);
             console.log('Camera position after fitting:', camera.position);
             controls.update();
