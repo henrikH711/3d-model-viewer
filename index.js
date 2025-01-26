@@ -1,3 +1,4 @@
+//script for site
 document.getElementById('file-input').addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -9,7 +10,7 @@ document.getElementById('file-input').addEventListener('change', (event) => {
 });
 
 function loadModel(file) {
-    const url = URL.createObjectURL(file); // Dynamically create a URL for the uploaded file
+    const url = URL.createObjectURL(file); // Dynamically creates a URL
     console.log('File URL:', url); // Debug the generated URL
     loader.load(
         url,
@@ -34,7 +35,7 @@ function loadModel(file) {
             fitCameraToObject(camera, model);
             console.log('Camera position after fitting:', camera.position);
             controls.update();
-
+            
             console.log('Model loaded successfully!');
         },
         (xhr) => {
