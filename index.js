@@ -18,10 +18,7 @@ function loadModel(file) {
             console.log('GLTF loaded:', gltf); // Debug the loaded glTF object
             const model = gltf.scene;
 
-            model.scale.set(1, 1, 1);
-            const box = new THREE.Box3().setFromObject(model);
-            const center = box.getCenter(new THREE.Vector3());
-            model.position.sub(center);
+          
 
             console.log('Model position after centering:', model.position);
 
