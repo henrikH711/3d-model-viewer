@@ -1,46 +1,73 @@
-//script for site
 document.getElementById('file-input').addEventListener('change', (event) => {
     const file = event.target.files[0];
-    if (file) {
-        console.log('Selected file:', file);
-        loadModel(file);
-    } else {
+
+    if (!file) {
         alert('No file selected.');
+        return;
     }
+
+    // Validate file type
+    const allowedTypes = ['model/gltf+json', 'model/gltf-binary'];
+    if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file format. Please select a .gltf or .glb file.');
+        return;
+    }
+
+    console.log('Selected file:', file);
+    loadModel(file);
 });
 
 function loadModel(file) {
-    const url = URL.createObjectURL(file); // Dynamically creates a URL
-    console.log('File URL:', url); // Debug the generated URL
+    const url = URL.createObjectURL(file); // Creates a URL for the file
+    console.log('File URL:', url);
+
     loader.load(
         url,
         (gltf) => {
-            console.log('GLTF loaded:', gltf); // Debug the loaded glTF object
+            console.log('GLTF loaded:', gltf);
             const model = gltf.scene;
 
-          
-
-            console.log('Model position after centering:', model.position);
-
-            // Clear the scene + adds model
+            // Clear previous models from the scene
             clearScene();
             scene.add(gridHelper, plane, model);
 
-            // Camera
-
+            // Center model and adjust camera
             fitCameraToObject(camera, model);
-            console.log('Camera position after fitting:', camera.position);
-            controls.update();
-            
+
             console.log('Model loaded successfully!');
+            controls.update();
+
+            // Cleanup the Object URL to free memory
+            URL.revokeObjectURL(url);
         },
         (xhr) => {
-            console.log(`Loading progress: ${(xhr.loaded / xhr.total * 100).toFixed(2)}%`);
+            if (xhr.total) {
+                console.log(`Loading progress: ${(xhr.loaded / xhr.total * 100).toFixed(2)}%`);
+            }
         },
-//error handling too
-        (error) => { 
-            console.error('An error occurred while loading the model:', error);
+        (error) => {
+            console.error('Error loading model:', error);
             alert('Failed to load model. Please check the file and try again.');
+            URL.revokeObjectURL(url); // Cleanup even on failure
         }
     );
+}
+
+function clearScene() {
+    // Remove all objects except essential ones
+    scene.children.forEach((object) => {
+        if (!['gridHelper', 'plane'].includes(object.name)) {
+            scene.remove(object);
+            if (object.geometry) object.geometry.dispose();
+            if (object.material) {
+                if (Array.isArray(object.material)) {
+                    object.material.forEach((mat) => mat.dispose());
+                } else {
+                    object.material.dispose();
+                }
+            }
+        }
+    });
+
+    console.log('Scene cleared.');
 }
